@@ -10,7 +10,7 @@ public abstract class AI : MonoBehaviour {
     public float moveSpeed;
     public float baseMoveSpeed = 1;
     public float damage = 5;
-    public float attackRange = 4; //test
+    public float attackRange = 4; //testicles
     public float acquisitionRange = 10;
     public float RoF = 1;
     public float maxhp;
