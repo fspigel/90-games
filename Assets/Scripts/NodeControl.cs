@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
-using System.Collections
-.Generic
-;public class NodeControl : MonoBehaviour {
+public class NodeControl : MonoBehaviour {
 
     public float capRadius = 5;
     public int ownerTeamID = -1;

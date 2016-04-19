@@ -21,7 +21,7 @@ public abstract class behavior_Attacker : AI
         acquireTarget();
         if(target != null)
         {
-            engage();
+            base.engage();
         }
         if (currentNode != targetNode && (targetNode.transform.position - destination).sqrMagnitude > Mathf.Pow(targetNode.GetComponent<NodeControl>().capRadius, 2))
         {
@@ -40,7 +40,7 @@ public abstract class behavior_Attacker : AI
             }
             else
             {
-                engage();
+                base.engage();
             }
         }
         else if (!isDefensive)

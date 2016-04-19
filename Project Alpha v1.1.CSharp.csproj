@@ -78,6 +78,7 @@
     <Compile Include="Assets\Scripts\RangeDisplay.cs" />
     <Compile Include="Assets\Scripts\behavior_Attacker.cs" />
     <Compile Include="Assets\Scripts\testingScript.cs" />
+    <Compile Include="Assets\Scripts\unit_Jailbreak.cs" />
     <Compile Include="Assets\Scripts\unit_Spam.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

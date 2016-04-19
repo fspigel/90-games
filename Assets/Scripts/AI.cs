@@ -10,14 +10,19 @@ public abstract class AI : MonoBehaviour {
     public float moveSpeed;
     public float baseMoveSpeed = 1;
     public float damage = 5;
-    public float attackRange = 4; //even more testicles
+    public float baseDamage = 5;
+    public float attackRange = 4;
+    public float baseAttackRange = 4;
     public float acquisitionRange = 10;
+    public float baseAcquisitionRange = 10;
     public float RoF = 1;
+    public float baseRoF = 1;
     public float maxhp;
     public float hp;
     public bool selectByAggro = false;          //Does the unit determine target according to aggro?
     public bool stealthed = false;              //Is the unit stealthed? (overriden by detection)
     public float detectionRange = 0;            //Range in which stealthed units are revealed
+    public float baseDetectionRange = 0;       
     public float aggro = 0;                     //Aggro - more aggro means more likely to be targeted by "intelligent" hostiles
     public float maxLifeTime = 1000;            //Starting duration of the unit
     public float lifeTime;                      //How much duration (life time) is left
@@ -33,13 +38,10 @@ public abstract class AI : MonoBehaviour {
     private NodeControl currentNodeNodeControl;
     public GameObject targetNode;
     public GameObject finalTargetNode;
+    public List<string> modifiers;
     public bool isCapping;
     public bool isDefensive;
-    private bool someBool
-    {
-        set;
-        get;
-    }
+    private bool someVar;
 
     public List<GameObject> globalTargets = new List<GameObject>();         //These are lists used to sort all enemy units according to whether
     public List<GameObject> localTargets = new List<GameObject>();          //they are inside attackRange, acquisitionRange or outside both
@@ -50,7 +52,7 @@ public abstract class AI : MonoBehaviour {
     // Use this for initialization
     protected void Start () {
         hp = maxhp;
-        moveSpeed = baseMoveSpeed;
+        //moveSpeed = baseMoveSpeed;
         lifeTime = maxLifeTime;
         StartCoroutine("attackCycle");
         healthBarScale = healthBar.transform.localScale.y;
@@ -478,8 +480,8 @@ public abstract class AI : MonoBehaviour {
     public static Vector3 randomPointOnCircle(Vector3 center, float radius)
     {
 
-        float x = (Random.value - 0.5f) * radius * 2;
-        float y = (Random.value - 0.5f) * radius * 2;
+        float x = (Random.value - 0.5f) * 2 * radius;
+        float y = (Random.value - 0.5f) * 2 * radius;
         Vector3 newVector = new Vector3(center.x + x, center.y + y, 0);
         return newVector;
     }
@@ -545,9 +547,9 @@ public abstract class AI : MonoBehaviour {
         int maxCount = 0;
         Vector3 tempDestination = Vector3.zero;
         //create a field of discrete points in a local area
-        for (float i = center.x - chkRadius; i < center.x + chkRadius; i += 1)
+        for (float i = center.x - chkRadius; i < center.x + chkRadius; i ++)
         {
-            for (float j = center.y - chkRadius; j < center.y + chkRadius; j += 1)
+            for (float j = center.y - chkRadius; j < center.y + chkRadius; j ++)
             {
                 count = 0;
                 Collider2D[] temp = Physics2D.OverlapCircleAll(new Vector2(i, j), buffRadius);      //count how many friendlies in the area around each point
