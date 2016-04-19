@@ -41,7 +41,6 @@ public abstract class AI : MonoBehaviour {
     public List<string> modifiers;
     public bool isCapping;
     public bool isDefensive;
-    private bool someVar;
 
     public List<GameObject> globalTargets = new List<GameObject>();         //These are lists used to sort all enemy units according to whether
     public List<GameObject> localTargets = new List<GameObject>();          //they are inside attackRange, acquisitionRange or outside both
