@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Pathfinding;
 
 //TODO: convert all List<GameObject> to List<AI> everywhere
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Seeker))]
+
 public abstract class AI : MonoBehaviour {
+
 
     public string type;
     public string behavior;
@@ -37,6 +42,7 @@ public abstract class AI : MonoBehaviour {
     public Vector3 destination = Vector3.zero;  //This is an alternative to defaultDirection - a point in the game space the unit should move towards
     public float capSpeed = 1;                  //How fast does the unit cap nodes?
     public GameObject currentNode;
+    
     private NodeControl currentNodeNodeControl;
     public GameObject targetNode;
     public GameObject finalTargetNode;
@@ -51,6 +57,17 @@ public abstract class AI : MonoBehaviour {
     public List<GameObject> localTargets = new List<GameObject>();          //they are inside attackRange, acquisitionRange or outside both
     public List<GameObject> targetsInRange = new List<GameObject>();
 
+    //Pathfinding
+    public Path path;
+    public int currentWaypoint = 0;
+    public float nextWaypointDistance = 3;
+    public bool pathIsEnded = false;
+    public float updateDelay = 1;
+
+    //Caching
+    protected Rigidbody2D rbody;
+    protected Seeker seeker;
+
     // Use this for initialization
     protected void Start () {
         hp = maxhp;
@@ -60,20 +77,8 @@ public abstract class AI : MonoBehaviour {
         StartCoroutine(establishAggro());
         StartCoroutine(acquireTarget());
         assistTracker = new List<AI>();
-        
-
-        //TODO: overhaul damage process 
-        /*GameObject obj = Physics2D.OverlapPoint(transform.position).gameObject;
-        if (obj != null && obj.GetComponent<NodeControl>() != null)
-        {
-            currentNode = obj;
-            targetNode = obj;
-        }
-        else
-        {
-            Debug.LogError("Unit instantiation attempted in non-node space. Terminating.");
-            Destroy(gameObject);
-        }*/
+        rbody = GetComponent<Rigidbody2D>();
+        seeker = GetComponent<Seeker>();
     }
 
     // Update is called once per frame
@@ -166,11 +171,11 @@ public abstract class AI : MonoBehaviour {
     /// Move towards the point destination
     /// </summary>
     /// <param name="destination"></param>
-    protected void moveTo(Vector3 destination)  
+    protected void moveTo(Vector3 dest)  
     {
-        if (range(this.destination) > 0.1f)
+        if (range(dest) > 0.1f)
         {
-            move(this.destination - this.transform.position);
+            move(dest - this.transform.position);
         }
     }
 
@@ -754,11 +759,6 @@ public abstract class AI : MonoBehaviour {
 
         if (!immune) this.hp -= damageDone;
         Debug.Log(transform.name + "is hit for " + damageDone + " damage");
-
-        //if (this.hp <= 0)
-        //{
-        //    damagedealer.killConfirmed(this);
-        //}
     }
 
     /// <summary>

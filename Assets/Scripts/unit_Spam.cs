@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class unit_Spam : behavior_Attacker {
+public class unit_Spam : behavior_Default {
 
     public int splitCapacity;
 

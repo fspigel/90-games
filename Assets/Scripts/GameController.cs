@@ -18,6 +18,9 @@ public class GameController : MonoBehaviour {
     public float FPS;
     public static List<deathLog> killBoard;
 
+    //Caching
+    private AstarPath aPath;
+
     // Use this for initialization
     void Start () {
         int j = 0;
@@ -48,6 +51,7 @@ public class GameController : MonoBehaviour {
         FPS = 1 / Time.deltaTime;
         foreach (List<GameObject> item in teamLists) filterList(item);
         nodesPublic = nodes;
+        aPath.Scan();
     }
 
     public static void filterList<T>(List<T> list)
