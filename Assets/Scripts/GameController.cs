@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour {
     public static List<GameObject> nodes = new List<GameObject>();
     public List<GameObject> nodesPublic;
     public float FPS;
+    public static List<deathLog> killBoard;
 
     // Use this for initialization
     void Start () {
@@ -39,6 +40,7 @@ public class GameController : MonoBehaviour {
         {
             nodes.Add(item);
         }
+        killBoard = new List<deathLog>();
     }
 
     // Update is called once per frame
@@ -48,7 +50,7 @@ public class GameController : MonoBehaviour {
         nodesPublic = nodes;
     }
 
-    public static void filterList(List<GameObject> list)
+    public static void filterList<T>(List<T> list)
     {
         if (list.Count == 0) return;
         for(int i=0; i<list.Count; i++)

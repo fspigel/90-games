@@ -21,11 +21,13 @@ public class unit_Spam : behavior_Attacker {
     private void split()
     {
         GameObject newSpam = spawn(transform.position, this.moveSpeed, this.damage, this.attackRange, this.acquisitionRange, this.RoF, this.hp, this.detectionRange, this.teamID, this.lifeTime, this.destination);
+        newSpam.GetComponent<AI>().maxLifeTime = this.maxLifeTime / 2;
         newSpam.GetComponent<unit_Spam>().splitCapacity = this.splitCapacity - 1;
+
         newSpam = spawn(transform.position, this.moveSpeed, this.damage, this.attackRange, this.acquisitionRange, this.RoF, this.hp, this.detectionRange, this.teamID, this.lifeTime, this.destination);
         newSpam.GetComponent<AI>().maxLifeTime = this.maxLifeTime / 2;
         newSpam.GetComponent<unit_Spam>().splitCapacity = this.splitCapacity - 1;
-        Debug.Log(transform.name + "has successfully split!");
+        Debug.Log(name + " has successfully split!");
         Destroy(this.gameObject);
         Debug.LogError("Failure to destroy after split");
     }

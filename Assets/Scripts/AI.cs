@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+//TODO: convert all List<GameObject> to List<AI> everywhere
+
 public abstract class AI : MonoBehaviour {
 
     public string type;
@@ -41,23 +43,25 @@ public abstract class AI : MonoBehaviour {
     public List<string> modifiers;
     public bool isCapping;
     public bool isDefensive;
+    public List<AI> assistTracker;              //Tracks all units that assisted in the death of this unit
+    public List<AI> killTracker;                //Tracks all units this one has killed
+    public bool attackOnCoolDown;
 
     public List<GameObject> globalTargets = new List<GameObject>();         //These are lists used to sort all enemy units according to whether
     public List<GameObject> localTargets = new List<GameObject>();          //they are inside attackRange, acquisitionRange or outside both
     public List<GameObject> targetsInRange = new List<GameObject>();
 
-    public bool attack = false;         //Is the unit currently attacking something?
-
     // Use this for initialization
     protected void Start () {
         hp = maxhp;
-        //moveSpeed = baseMoveSpeed;
+        moveSpeed = baseMoveSpeed;
         lifeTime = maxLifeTime;
-        StartCoroutine("attackCycle");
         healthBarScale = healthBar.transform.localScale.y;
         StartCoroutine(establishAggro());
         StartCoroutine(acquireTarget());
+        assistTracker = new List<AI>();
         
+
         //TODO: overhaul damage process 
         /*GameObject obj = Physics2D.OverlapPoint(transform.position).gameObject;
         if (obj != null && obj.GetComponent<NodeControl>() != null)
@@ -74,6 +78,12 @@ public abstract class AI : MonoBehaviour {
 
     // Update is called once per frame
     protected void Update () {
+        if(targetNode== null)
+        {
+            Debug.Log("targetNode is null -- attempting to default to nearest node");
+            targetNode = nearestUnit(GameController.nodes);
+            Debug.Log("targetNode is now " + targetNode.name + " for unit " + this.name);
+        }
         lifeTime -= Time.deltaTime;                                                 //subtract from unit's lifetime
         GameController.filterList(localTargets);                                    //filterlist() removes all null members of a list
         GameController.filterList(targetsInRange);
@@ -85,10 +95,7 @@ public abstract class AI : MonoBehaviour {
             {
                 isCapping = true;
             }
-            if (targetNode == currentNode && !isCapping && !isDefensive)
-            {
-                targetNode = nodePicker(currentNode, finalTargetNode);
-            }
+            else isCapping = false;
         }
         else
         {
@@ -319,26 +326,25 @@ public abstract class AI : MonoBehaviour {
         if (range() > attackRange)
         {
             move(target.transform.position - this.transform.position);
-            this.attack = false;
             return false;
         }
-        //otherwise, allow attackCycle() to operate and return true
+        //Otherwise, deal damage
         else {
-            this.attack = true;
+            if(!attackOnCoolDown) StartCoroutine(attack());
             return true;
         }
     }
 
     //this is actually the attack function
-    protected IEnumerator attackCycle()
+    protected IEnumerator attack()
     {
-        while (true)
+        if (!this.attackOnCoolDown && this.target!= null)
         {
-            if (this.attack && target != null)   //make sure there is a target
-            {
-                this.target.GetComponent<AI>().doDamage(damage);
-            }
-            yield return new WaitForSeconds(1 / RoF);       //iterate according to unit's RoF field (rate of fire)
+            this.attackOnCoolDown = true;
+            this.target.GetComponent<AI>().doDamage(damage, this);
+            Debug.DrawLine(this.transform.position, this.target.transform.position, Color.red);
+            yield return new WaitForSeconds(1 / RoF);
+            this.attackOnCoolDown = false;
         }
     }
 
@@ -478,9 +484,14 @@ public abstract class AI : MonoBehaviour {
     /// <returns></returns>
     public static Vector3 randomPointOnCircle(Vector3 center, float radius)
     {
+        float x = 0;
+        float y = 0;
+        do
+        {
+            x = (Random.value - 0.5f) * 2 * radius;
+            y = (Random.value - 0.5f) * 2 * radius;
+        } while (Mathf.Pow(x, 2) + Mathf.Pow(y, 2) > Mathf.Pow(radius, 2));
 
-        float x = (Random.value - 0.5f) * 2 * radius;
-        float y = (Random.value - 0.5f) * 2 * radius;
         Vector3 newVector = new Vector3(center.x + x, center.y + y, 0);
         return newVector;
     }
@@ -626,17 +637,25 @@ public abstract class AI : MonoBehaviour {
     /// <returns></returns>
     protected GameObject nearestUnit(List<GameObject> unitList)
     {
-        float minRange = 1000;
-        GameObject tempTarget = null;
-        foreach (GameObject item in unitList)
+        if (unitList.Count == 0)
         {
-            if (range(item) < minRange)
-            {
-                minRange = range(item);
-                tempTarget = item;
-            }
+            Debug.LogError("nearestUnit called on empty list");
+            return null;
         }
-        return tempTarget;
+        else {
+            float minRange = range(unitList[0]);
+            GameObject tempTarget = unitList[0];
+            foreach (GameObject item in unitList)
+            {
+                if (range(item) < minRange)
+                {
+                    minRange = range(item);
+                    tempTarget = item;
+                }
+            }
+            Debug.Log("minimum distance: " + minRange);
+            return tempTarget;
+        }
     }
 
     /// <summary>
@@ -701,6 +720,23 @@ public abstract class AI : MonoBehaviour {
     }
 
     /// <summary>
+    /// Returns "unit" if object is a unit, "node" if object is a node
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    public static string getTypeString(GameObject target)
+    {
+        if (target.GetComponent<AI>() != null) return "unit";
+        if (target.GetComponent<NodeControl>() != null) return "node";
+        else return null;
+    }
+
+    public virtual void killConfirmed(AI unitKilled)
+    {
+        killTracker.Add(unitKilled);
+    }
+
+    /// <summary>
     /// Inflicts damage to the parent unit
     /// </summary>
     /// <param name="damageDone"></param>
@@ -710,11 +746,41 @@ public abstract class AI : MonoBehaviour {
         Debug.Log(transform.name + "is hit for " + damageDone + " damage");
     }
 
+    public void doDamage(float damageDone, AI damagedealer)
+    {
+        //put enemy at the top of the assistTracker
+        assistTracker.Remove(damagedealer);
+        assistTracker.Add(damagedealer);
+
+        if (!immune) this.hp -= damageDone;
+        Debug.Log(transform.name + "is hit for " + damageDone + " damage");
+
+        //if (this.hp <= 0)
+        //{
+        //    damagedealer.killConfirmed(this);
+        //}
+    }
+
     /// <summary>
     /// Kill the unit
     /// </summary>
-    protected void onDeath()
+    protected virtual void onDeath()
     {
+        Debug.Log("Initiating onDeath() for " + name);
+        deathLog log = new deathLog();
+        log.name = this.name;
+        log.type = this.type;
+        log.hpOnDeath = Mathf.Clamp(hp, 0, Mathf.Infinity);
+        log.lifeTimeOnDeath = Mathf.Clamp(this.lifeTime, 0, Mathf.Infinity);
+        log.timeOfDeath = Time.timeSinceLevelLoad;
+        log.killedBy = (log.hpOnDeath > 0 ? null : assistTracker[assistTracker.Count - 1]);
+        if(assistTracker.Count>0) assistTracker.RemoveAt(assistTracker.Count - 1);
+        log.assists = assistTracker.ToArray();
+        if (log.killedBy != null) log.killedBy.killConfirmed(this);
+        Debug.Log("poke1");
+        GameController.killBoard.Add(log);
+        Debug.Log("poke2");
+
         Debug.Log(transform.name + " is destroyed");
         Destroy(gameObject);
     }

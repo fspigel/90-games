@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AI.cs" />
     <Compile Include="Assets\Scripts\GameController.cs" />
+    <Compile Include="Assets\Scripts\Interface1.cs" />
     <Compile Include="Assets\Scripts\NodeControl.cs" />
     <Compile Include="Assets\Scripts\Outdated\AI_Circle.cs" />
     <Compile Include="Assets\Scripts\Outdated\AI_Diamond.cs" />
@@ -77,9 +78,17 @@
     <Compile Include="Assets\Scripts\Outdated\AI_Triangle.cs" />
     <Compile Include="Assets\Scripts\RangeDisplay.cs" />
     <Compile Include="Assets\Scripts\behavior_Attacker.cs" />
+    <Compile Include="Assets\Scripts\behavior_Default.cs" />
+    <Compile Include="Assets\Scripts\behavior_Suicide.cs" />
+    <Compile Include="Assets\Scripts\deathLog.cs" />
+    <Compile Include="Assets\Scripts\interface_Squad.cs" />
     <Compile Include="Assets\Scripts\testingScript.cs" />
+    <Compile Include="Assets\Scripts\type_Squad.cs" />
+    <Compile Include="Assets\Scripts\unit_Baneling10.cs" />
     <Compile Include="Assets\Scripts\unit_Jailbreak.cs" />
+    <Compile Include="Assets\Scripts\unit_Jesus10.cs" />
     <Compile Include="Assets\Scripts\unit_Spam.cs" />
+    <Compile Include="Assets\Scripts\unit_Worm10.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

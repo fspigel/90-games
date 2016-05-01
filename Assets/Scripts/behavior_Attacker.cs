@@ -8,8 +8,8 @@ public abstract class behavior_Attacker : AI
     // Use this for initialization
     new protected void Start()
     {
-        base.Start();
         behavior = "Attacker";
+        base.Start();
         destination = randomPointOnCircle(targetNode.transform.position, 5);
     }
 

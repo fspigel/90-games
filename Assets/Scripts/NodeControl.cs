@@ -64,13 +64,18 @@ public class NodeControl : MonoBehaviour {
         {
             case 0:
                 GetComponent<SpriteRenderer>().color = Color.green;
-                Debug.Log("attempting to switch color to green");
                 break;
-            case -1:
-                GetComponent<SpriteRenderer>().color = Color.grey;
+            case 1:
+                GetComponent<SpriteRenderer>().color = Color.red;
+                break;
+            case 2:
+                GetComponent<SpriteRenderer>().color = Color.yellow;
+                break;
+            case 3:
+                GetComponent<SpriteRenderer>().color = Color.blue;
                 break;
             default:
-                GetComponent<SpriteRenderer>().color = Color.red;
+                GetComponent<SpriteRenderer>().color = Color.grey;
                 break;
         }
     }
@@ -140,9 +145,12 @@ public class NodeControl : MonoBehaviour {
 
     private void debugger()
     {
-        foreach(GameObject node in linkedNodes)
+        if (linkedNodes.Count != 0)
         {
-            Debug.DrawLine(transform.position, node.transform.position);
+            foreach (GameObject node in linkedNodes)
+            {
+                Debug.DrawLine(transform.position, node.transform.position);
+            }
         }
     }
 }
