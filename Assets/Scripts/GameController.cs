@@ -51,7 +51,6 @@ public class GameController : MonoBehaviour {
         FPS = 1 / Time.deltaTime;
         foreach (List<GameObject> item in teamLists) filterList(item);
         nodesPublic = nodes;
-        aPath.Scan();
     }
 
     public static void filterList<T>(List<T> list)
@@ -71,5 +70,16 @@ public class GameController : MonoBehaviour {
     public void tempDisableAggro()
     {
         foreach (GameObject unit in teamLists[0]) unit.GetComponent<AI>().selectByAggro = false;
+    }
+
+    public void writeDeathLog()
+    {
+        foreach(deathLog log in killBoard)
+        {
+            Debug.Log("name: " + log.name);
+            Debug.Log("killed by: " + log.killedBy);
+            Debug.Log("time of death: " + log.timeOfDeath);
+            Debug.Log("assists: " + log.assists.ToString());
+        }
     }
 }

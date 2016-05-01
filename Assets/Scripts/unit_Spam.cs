@@ -31,4 +31,5 @@ public class unit_Spam : behavior_Default {
         Destroy(this.gameObject);
         Debug.LogError("Failure to destroy after split");
     }
+
 }

@@ -124,17 +124,77 @@ public abstract class AI : MonoBehaviour {
         }
     }
 
-    public GameObject spawn(
-        Vector3 spawnPoint, 
+    /// <summary>
+    /// Spawn an instance of gameobject called whatToSpawn
+    /// </summary>
+    /// <param name="spawnPoint"></param>
+    /// <param name="moveSpeed"></param>
+    /// <param name="damage"></param>
+    /// <param name="attackRange"></param>
+    /// <param name="acquisitionRange"></param>
+    /// <param name="RoF"></param>
+    /// <param name="maxhp"></param>
+    /// <param name="detectionRange"></param>
+    /// <param name="teamID"></param>
+    /// <param name="maxLifeTime"></param>
+    /// <param name="destination"></param>
+    /// <param name="whatToSpawn"></param>
+    /// <returns></returns>
+    public static GameObject spawn(
+        Vector3 spawnPoint,
         float moveSpeed,
-        float damage, 
-        float attackRange, 
-        float acquisitionRange, 
-        float RoF, 
-        float maxhp, 
-        float detectionRange, 
-        int teamID, 
-        float maxLifeTime, 
+        float damage,
+        float attackRange,
+        float acquisitionRange,
+        float RoF,
+        float maxhp,
+        float detectionRange,
+        int teamID,
+        float maxLifeTime,
+        Vector3 destination,
+        GameObject whatToSpawn)
+    {
+        GameObject newUnit = (GameObject)Instantiate(whatToSpawn, spawnPoint, Quaternion.identity);
+        newUnit.GetComponent<AI>().moveSpeed = moveSpeed;
+        newUnit.GetComponent<AI>().damage = damage;
+        newUnit.GetComponent<AI>().attackRange = attackRange;
+        newUnit.GetComponent<AI>().acquisitionRange = acquisitionRange;
+        newUnit.GetComponent<AI>().RoF = RoF;
+        newUnit.GetComponent<AI>().maxhp = maxhp;
+        newUnit.GetComponent<AI>().detectionRange = detectionRange;
+        newUnit.GetComponent<AI>().teamID = teamID;
+        newUnit.GetComponent<AI>().maxLifeTime = maxLifeTime;
+        newUnit.GetComponent<AI>().destination = destination;
+        //GameController.teamLists[teamID].Add(newUnit);
+        return newUnit;
+    }
+
+    /// <summary>
+    /// Clone this object with separate parameters
+    /// </summary>
+    /// <param name="spawnPoint"></param>
+    /// <param name="moveSpeed"></param>
+    /// <param name="damage"></param>
+    /// <param name="attackRange"></param>
+    /// <param name="acquisitionRange"></param>
+    /// <param name="RoF"></param>
+    /// <param name="maxhp"></param>
+    /// <param name="detectionRange"></param>
+    /// <param name="teamID"></param>
+    /// <param name="maxLifeTime"></param>
+    /// <param name="destination"></param>
+    /// <returns></returns>
+    public GameObject spawn(
+        Vector3 spawnPoint,
+        float moveSpeed,
+        float damage,
+        float attackRange,
+        float acquisitionRange,
+        float RoF,
+        float maxhp,
+        float detectionRange,
+        int teamID,
+        float maxLifeTime,
         Vector3 destination)
     {
         GameObject newUnit = (GameObject)Instantiate(gameObject, spawnPoint, Quaternion.identity);
@@ -767,19 +827,24 @@ public abstract class AI : MonoBehaviour {
     protected virtual void onDeath()
     {
         Debug.Log("Initiating onDeath() for " + name);
+
         deathLog log = new deathLog();
+
         log.name = this.name;
         log.type = this.type;
+        log.maxhp = this.maxhp;
+        log.maxLifeTime = this.maxLifeTime;
+        log.teamID = this.teamID;
+
+        log.positionOnDeath = transform.position;
         log.hpOnDeath = Mathf.Clamp(hp, 0, Mathf.Infinity);
         log.lifeTimeOnDeath = Mathf.Clamp(this.lifeTime, 0, Mathf.Infinity);
-        log.timeOfDeath = Time.timeSinceLevelLoad;
         log.killedBy = (log.hpOnDeath > 0 ? null : assistTracker[assistTracker.Count - 1]);
         if(assistTracker.Count>0) assistTracker.RemoveAt(assistTracker.Count - 1);
         log.assists = assistTracker.ToArray();
         if (log.killedBy != null) log.killedBy.killConfirmed(this);
-        Debug.Log("poke1");
+        log.timeOfDeath = Time.timeSinceLevelLoad;
         GameController.killBoard.Add(log);
-        Debug.Log("poke2");
 
         Debug.Log(transform.name + " is destroyed");
         Destroy(gameObject);

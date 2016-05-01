@@ -42,6 +42,7 @@ public class unit_Jailbreak : behavior_Attacker {
 
     private void applyBuff(GameObject unit)
     {
+        //Caching
         AI tempAI = unit.GetComponent<AI>();
         if (!tempAI.modifiers.Contains(buffName))
         {
